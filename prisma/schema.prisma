@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  createdAt DateTime @default(now())
+
+  apiKeys      ApiKey[]
+  websiteData  WebsiteData?
+  faqs         FAQ[]
+  messages     Message[]
+  settings     ChatbotSettings?
+
+  @@index([clerkId])
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  userId    String
+  key       String   @unique
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([key])
+}
+
+model WebsiteData {
+  id          String @id @default(cuid())
+  userId      String @unique
+  description String @db.Text
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FAQ {
+  id       String @id @default(cuid())
+  userId   String
+  question String @db.Text
+  answer   String @db.Text
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ChatbotSettings {
+  id       String @id @default(cuid())
+  userId   String @unique
+  name     String @default("AI Assistant")
+  color    String @default("#3b82f6")
+  greeting String @default("Hello! How can I help you today?")
+  position String @default("right")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}

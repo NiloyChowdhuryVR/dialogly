@@ -1,0 +1,60 @@
+{
+    "name": "dialogly",
+    "version": "1.0.0",
+    "description": "AI-powered chatbot widget for your website - by Dialogly",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "exports": {
+        ".": {
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./styles.css": "./dist/styles.css"
+    },
+    "scripts": {
+        "build": "tsup && npm run copy-css",
+        "copy-css": "powershell -Command \"Copy-Item -Path src/styles/styles.css -Destination dist/styles.css -Force\"",
+        "dev": "tsup --watch",
+        "clean": "rm -rf dist",
+        "type-check": "tsc --noEmit",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "dialogly",
+        "chatbot",
+        "ai",
+        "widget",
+        "react",
+        "customer-support",
+        "chat",
+        "conversational-ai",
+        "ai-chatbot",
+        "chat-widget"
+    ],
+    "author": "Dialogly",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yourusername/dialogly"
+    },
+    "homepage": "https://dialogly.ai",
+    "peerDependencies": {
+        "react": "^18.0.0 || ^19.0.0",
+        "react-dom": "^18.0.0 || ^19.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "^19.0.2",
+        "@types/react-dom": "^19.0.2",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "tsup": "^8.3.5",
+        "typescript": "^5.7.2"
+    }
+}
