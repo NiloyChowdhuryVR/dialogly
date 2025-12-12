@@ -1,6 +1,6 @@
 {
     "name": "dialogly",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "AI-powered chatbot widget for your website - by Dialogly",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -12,14 +12,14 @@
     ],
     "exports": {
         ".": {
+            "types": "./dist/index.d.ts",
             "import": "./dist/index.mjs",
-            "require": "./dist/index.js",
-            "types": "./dist/index.d.ts"
+            "require": "./dist/index.js"
         },
         "./styles.css": "./dist/styles.css"
     },
     "scripts": {
-        "build": "tsup && npm run copy-css",
+        "build": "tsup && tsc --emitDeclarationOnly && npm run copy-css",
         "copy-css": "powershell -Command \"Copy-Item -Path src/styles/styles.css -Destination dist/styles.css -Force\"",
         "dev": "tsup --watch",
         "clean": "rm -rf dist",
@@ -42,7 +42,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/yourusername/dialogly"
+        "url": "https://github.com/NiloyChowdhuryVR/dialogly.git"
     },
     "homepage": "https://dialogly.ai",
     "peerDependencies": {

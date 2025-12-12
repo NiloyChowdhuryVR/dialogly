@@ -1,8 +1,9 @@
 import type { ChatQueryResponse, ChatbotSettings } from '../types/types';
 
 // Default production API URL
-const DEFAULT_API_URL = 'https://api.dialogly.ai/api/chat/query';
-const DEFAULT_CONTEXT_URL = 'https://api.dialogly.ai/api/context';
+// Default production API URL
+const DEFAULT_API_URL = 'https://dialogly.vercel.app/api/chat/query';
+const DEFAULT_CONTEXT_URL = 'https://dialogly.vercel.app/api/context';
 
 // Mock responses for test mode
 const MOCK_RESPONSES = [

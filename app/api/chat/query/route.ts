@@ -79,18 +79,38 @@ export async function POST(request: Request) {
             message: responseMessage,
             role: 'assistant',
             source: usedFAQ ? 'faq' : 'ai',
+        }, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+            }
         });
     } catch (error) {
         console.error('Chat query error:', error);
         if (error instanceof Error && 'issues' in error) {
             return NextResponse.json(
                 { error: 'Validation error', details: error },
-                { status: 400 }
+                {
+                    status: 400,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+                    }
+                }
             );
         }
         return NextResponse.json(
             { error: 'Internal server error' },
-            { status: 500 }
+            {
+                status: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+                }
+            }
         );
     }
 }

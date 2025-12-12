@@ -28,11 +28,6 @@
       ]
     }
   },
-  "references": [
-    {
-      "path": "./chatbot-package"
-    }
-  ],
   "include": [
     "next-env.d.ts",
     "**/*.ts",
