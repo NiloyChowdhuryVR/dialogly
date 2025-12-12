@@ -49,3 +49,11 @@ chatbot-package/node_modules/
 # Old structure (to be removed)
 apps/
 packages/
+
+# Development Documentation
+DEPLOYMENT.md
+SETUP.md
+PROJECT_STATUS.md
+walkthrough.md
+task.md
+implementation_plan.md
