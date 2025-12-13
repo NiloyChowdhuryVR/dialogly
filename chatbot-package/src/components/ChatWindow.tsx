@@ -12,6 +12,8 @@ interface ChatWindowProps {
   theme: 'light' | 'dark';
   position: 'left' | 'right';
   isLoading: boolean;
+  aiMode: boolean;
+  quickReplies: import('../types/types').QuickReply[];
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -24,6 +26,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   theme,
   position,
   isLoading,
+  aiMode,
+  quickReplies,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -76,27 +80,43 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <form onSubmit={handleSubmit}>
-        <div className={`chat-input-container ${theme === 'dark' ? 'theme-dark' : ''}`}>
-          <input
-            type="text"
-            className={`chat-input ${theme === 'dark' ? 'theme-dark' : ''}`}
-            placeholder="Type a message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            className="chat-send-button"
-            style={{ backgroundColor: color }}
-            disabled={!inputValue.trim() || isLoading}
-          >
-            Send
-          </button>
+      {/* Input or Quick Replies */}
+      {aiMode ? (
+        <form onSubmit={handleSubmit}>
+          <div className={`chat-input-container ${theme === 'dark' ? 'theme-dark' : ''}`}>
+            <input
+              type="text"
+              className={`chat-input ${theme === 'dark' ? 'theme-dark' : ''}`}
+              placeholder="Type a message..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              className="chat-send-button"
+              style={{ backgroundColor: color }}
+              disabled={!inputValue.trim() || isLoading}
+            >
+              Send
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="quick-replies-container">
+          {quickReplies.map((reply) => (
+            <button
+              key={reply.id}
+              className="quick-reply-button"
+              style={{ borderColor: color, color: color }}
+              onClick={() => onSendMessage(reply.response)}
+              disabled={isLoading}
+            >
+              {reply.label}
+            </button>
+          ))}
         </div>
-      </form>
+      )}
     </div>
   );
 };

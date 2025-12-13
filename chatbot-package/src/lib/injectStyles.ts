@@ -279,6 +279,71 @@ export function injectStyles() {
         bottom: 80px;
       }
 
+      /* Quick Replies */
+      .quick-replies-container {
+        padding: 12px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        background: white;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .quick-reply-button {
+        padding: 10px 16px;
+        border: 2px solid;
+        border-radius: 20px;
+        background: white;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .quick-reply-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background: rgba(34, 197, 94, 0.05);
+      }
+
+      .quick-reply-button:active:not(:disabled) {
+        transform: scale(0.95);
+      }
+
+      .quick-reply-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Chat Window Animation */
+      .chat-window {
+        animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Chat Button Animation */
+      .chat-button {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .chat-button:active {
+        transform: scale(0.9);
+      }
+
       .chatbot-container.position-right,
       .chatbot-container.position-left {
         right: 20px;

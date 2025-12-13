@@ -34,6 +34,7 @@ export const saveSettingsSchema = z.object({
     position: z.enum(['left', 'right'], {
         errorMap: () => ({ message: 'Position must be left or right' }),
     }),
+    aiMode: z.boolean(),
 });
 
 // Chat Query

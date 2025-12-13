@@ -26,6 +26,8 @@ export const Chatbot: React.FC<ChatbotProps> = ({
   const [fetchedGreeting, setFetchedGreeting] = useState('Hello! How can I help you today?');
   const [fetchedName, setFetchedName] = useState('AI Assistant');
   const [fetchedColor, setFetchedColor] = useState('#22c55e');
+  const [fetchedAiMode, setFetchedAiMode] = useState(true);
+  const [fetchedQuickReplies, setFetchedQuickReplies] = useState<import('../types/types').QuickReply[]>([]);
 
   // Use props if provided, otherwise use fetched settings
   const activeTheme = theme || fetchedTheme;
@@ -33,6 +35,8 @@ export const Chatbot: React.FC<ChatbotProps> = ({
   const activeGreeting = greeting || fetchedGreeting;
   const activeName = name || fetchedName;
   const activeColor = color || fetchedColor;
+  const activeAiMode = fetchedAiMode;
+  const activeQuickReplies = fetchedQuickReplies;
 
   // Inject styles on mount
   useEffect(() => {
@@ -49,6 +53,8 @@ export const Chatbot: React.FC<ChatbotProps> = ({
         setFetchedGreeting(settings.greeting);
         setFetchedName(settings.name);
         setFetchedColor(settings.color);
+        setFetchedAiMode(settings.aiMode);
+        setFetchedQuickReplies(settings.quickReplies || []);
       }
     };
 
@@ -56,7 +62,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
   }, [apiKey, apiUrl, testMode]);
 
   useEffect(() => {
-    // Add initial greeting message
+    // Add or update initial greeting message
     if (messages.length === 0) {
       setMessages([
         {
@@ -65,6 +71,15 @@ export const Chatbot: React.FC<ChatbotProps> = ({
           content: activeGreeting,
           timestamp: new Date(),
         },
+      ]);
+    } else if (messages[0]?.role === 'assistant' && messages[0]?.id === '1') {
+      // Update the greeting if it's still the first message
+      setMessages((prev) => [
+        {
+          ...prev[0],
+          content: activeGreeting,
+        },
+        ...prev.slice(1),
       ]);
     }
   }, [activeGreeting]);
@@ -124,6 +139,8 @@ export const Chatbot: React.FC<ChatbotProps> = ({
           theme={activeTheme}
           position={activePosition}
           isLoading={isLoading}
+          aiMode={activeAiMode}
+          quickReplies={activeQuickReplies}
         />
       )}
       {!isOpen && (

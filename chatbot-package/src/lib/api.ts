@@ -27,6 +27,8 @@ export async function fetchChatbotSettings(
             position: 'right',
             greeting: 'Hello! How can I help you today?',
             name: 'AI Assistant',
+            aiMode: true,
+            quickReplies: [],
         };
     }
 
@@ -51,13 +53,15 @@ export async function fetchChatbotSettings(
         const data = await response.json();
 
         // Extract chatbot settings from the response
-        if (data.chatbotSettings) {
+        if (data.settings) {
             return {
-                theme: data.chatbotSettings.theme || 'light',
-                color: data.chatbotSettings.primaryColor || '#22c55e',
-                position: data.chatbotSettings.position || 'right',
-                greeting: data.chatbotSettings.welcomeMessage || 'Hello! How can I help you today?',
-                name: data.chatbotSettings.chatbotName || 'AI Assistant',
+                theme: 'light', // Theme is not in DB yet, default to light
+                color: data.settings.color || '#22c55e',
+                position: data.settings.position || 'right',
+                greeting: data.settings.greeting || 'Hello! How can I help you today?',
+                name: data.settings.name || 'AI Assistant',
+                aiMode: data.settings.aiMode ?? true,
+                quickReplies: data.settings.quickReplies || [],
             };
         }
 

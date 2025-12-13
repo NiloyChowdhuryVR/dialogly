@@ -15,6 +15,14 @@ export interface ChatbotSettings {
     position: 'left' | 'right';
     greeting: string;
     name: string;
+    aiMode: boolean;
+    quickReplies?: QuickReply[];
+}
+
+export interface QuickReply {
+    id: string;
+    label: string;
+    response: string;
 }
 
 export interface ChatMessage {

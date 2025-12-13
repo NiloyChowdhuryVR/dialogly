@@ -1,6 +1,6 @@
 {
     "name": "dialogly",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "AI-powered chatbot widget for your website - by Dialogly",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",

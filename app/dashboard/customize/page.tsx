@@ -7,6 +7,7 @@ interface Settings {
   color: string;
   greeting: string;
   position: string;
+  aiMode: boolean;
 }
 
 export default function CustomizePage() {
@@ -15,6 +16,7 @@ export default function CustomizePage() {
     color: '#3b82f6',
     greeting: 'Hello! How can I help you today?',
     position: 'right',
+    aiMode: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -128,6 +130,37 @@ export default function CustomizePage() {
                   onChange={(e) => setSettings({ ...settings, greeting: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-primary-800 bg-dark-200 px-4 py-2 text-white placeholder-gray-500 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Chat Mode
+                </label>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-dark-300 border border-primary-800">
+                    <div>
+                      <p className="text-sm font-medium text-white">AI Mode</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {settings.aiMode 
+                          ? 'Users can type freely and get AI responses' 
+                          : 'Users select from predefined quick-reply buttons'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSettings({ ...settings, aiMode: !settings.aiMode })}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        settings.aiMode ? 'bg-primary-600' : 'bg-gray-600'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          settings.aiMode ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div>

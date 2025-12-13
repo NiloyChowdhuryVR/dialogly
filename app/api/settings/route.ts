@@ -61,6 +61,7 @@ export async function POST(request: Request) {
                 color: validatedData.color,
                 greeting: validatedData.greeting,
                 position: validatedData.position,
+                aiMode: validatedData.aiMode,
             },
             create: {
                 userId: user.id,
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
                 color: validatedData.color,
                 greeting: validatedData.greeting,
                 position: validatedData.position,
+                aiMode: validatedData.aiMode,
             },
         });
 

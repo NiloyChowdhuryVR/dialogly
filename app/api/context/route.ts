@@ -34,14 +34,32 @@ export async function GET(request: Request) {
             }),
         ]);
 
+        // Generate quick replies from FAQs (top 4)
+        const quickReplies = faqs.slice(0, 4).map((faq, index) => ({
+            id: `faq-${index}`,
+            label: faq.question.length > 40 ? faq.question.substring(0, 37) + '...' : faq.question,
+            response: faq.answer,
+        }));
+
+        // Add default quick replies if no FAQs exist
+        const defaultQuickReplies = [
+            { id: 'default-1', label: 'Learn More', response: 'I\'d be happy to tell you more about our services!' },
+            { id: 'default-2', label: 'Contact Support', response: 'You can reach our support team anytime. How can I assist you?' },
+            { id: 'default-3', label: 'Pricing', response: 'Let me help you with pricing information!' },
+            { id: 'default-4', label: 'Get Started', response: 'Great! Let\'s get you started. What would you like to know?' },
+        ];
+
         return NextResponse.json({
             websiteDescription: websiteData?.description || '',
             faqs: faqs || [],
-            settings: settings || {
-                name: 'AI Assistant',
-                color: '#3b82f6',
-                greeting: 'Hello! How can I help you today?',
-                position: 'right',
+            settings: {
+                ...settings,
+                name: settings?.name || 'AI Assistant',
+                color: settings?.color || '#3b82f6',
+                greeting: settings?.greeting || 'Hello! How can I help you today?',
+                position: settings?.position || 'right',
+                aiMode: settings?.aiMode ?? true,
+                quickReplies: quickReplies.length > 0 ? quickReplies : defaultQuickReplies,
             },
         }, {
             headers: {
