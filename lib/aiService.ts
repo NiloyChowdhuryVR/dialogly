@@ -58,8 +58,9 @@ export async function generateAIResponse(
         'X-Title': 'Dialogly Chatbot',
       },
       body: JSON.stringify({
-        model: 'google/gemini-flash-1.5:free',
+        model: 'openai/gpt-oss-20b:free',
         messages: messages,
+        reasoning: { enabled: true },
       }),
     });
 
