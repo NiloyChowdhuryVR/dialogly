@@ -32,9 +32,6 @@ export default function DashboardLayout({
             <NavLink href="/dashboard/api-key" icon="🔑">
               API Key
             </NavLink>
-            <NavLink href="/dashboard/website" icon="🌐">
-              Website Info
-            </NavLink>
             <NavLink href="/dashboard/faq" icon="❓">
               FAQs
             </NavLink>

@@ -62,7 +62,7 @@ model ChatbotSettings {
   color    String  @default("#3b82f6")
   greeting String  @default("Hello! How can I help you today?")
   position String  @default("right")
-  aiMode   Boolean @default(true)
+  aiMode   Boolean @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -126,12 +126,38 @@ export const Chatbot: React.FC<ChatbotProps> = ({
     }
   };
 
+  const handleQuickReply = (question: string, answer: string) => {
+    // Add user message (Question)
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: question,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    // Simulate delay then add assistant response (Answer)
+    setTimeout(() => {
+      const assistantMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: answer,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+      setIsLoading(false);
+    }, 600);
+  };
+
   return (
     <div className={`chatbot-container position-${activePosition}`}>
       {isOpen && (
         <ChatWindow
           messages={messages}
           onSendMessage={handleSendMessage}
+          onQuickReply={handleQuickReply}
           onClose={() => setIsOpen(false)}
           name={activeName}
           color={activeColor}

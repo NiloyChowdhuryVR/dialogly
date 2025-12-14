@@ -86,17 +86,41 @@ export function injectStyles() {
 
     /* Chat Header */
     .chat-header {
-      padding: 16px 20px;
+      padding: 20px;
       color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-shrink: 0;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .chat-header-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chat-header-info {
+      display: flex;
+      flex-direction: column;
     }
 
     .chat-header-title {
       font-size: 16px;
       font-weight: 600;
+      margin-bottom: 2px;
     }
 
     .chat-header-status {
@@ -104,22 +128,27 @@ export function injectStyles() {
       opacity: 0.9;
     }
 
-    .chat-close-button {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
+    .chat-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-action-button {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      cursor: pointer;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
       font-size: 20px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: background 0.2s;
     }
 
-    .chat-close-button:hover {
+    .chat-action-button:hover {
       background: rgba(255, 255, 255, 0.3);
     }
 
@@ -252,14 +281,18 @@ export function injectStyles() {
     }
 
     .chat-send-button {
-      padding: 10px 20px;
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       border: none;
-      border-radius: 8px;
       color: white;
-      font-size: 14px;
-      font-weight: 500;
       cursor: pointer;
       transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
     .chat-send-button:hover:not(:disabled) {
@@ -280,43 +313,56 @@ export function injectStyles() {
       }
 
       /* Quick Replies */
-      .quick-replies-container {
-        padding: 12px;
+      .quick-replies-message {
+        width: 100%;
+        max-width: 360px;
+        padding: 4px;
+      }
+
+      .quick-replies-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-        background: white;
-        border-top: 1px solid #e5e7eb;
+        gap: 12px;
+        padding: 8px;
       }
 
       .quick-reply-button {
-        padding: 10px 16px;
-        border: 2px solid;
-        border-radius: 20px;
-        background: white;
+        width: 100%;
+        min-height: 50px;
+        padding: 12px 16px;
+        border-width: 2px !important;
+        border-style: dashed !important;
+        /* borderColor is set via inline style */
+        border-radius: 12px !important;
+        background-color: #ffffff !important;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         cursor: pointer;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        line-height: 1.3;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08) !important;
       }
 
       .quick-reply-button:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background: rgba(34, 197, 94, 0.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12) !important;
+        background-color: #f8f9fa !important;
+        border-style: solid !important;
       }
 
       .quick-reply-button:active:not(:disabled) {
-        transform: scale(0.95);
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
       }
 
       .quick-reply-button:disabled {
-        opacity: 0.5;
+        opacity: 0.6;
         cursor: not-allowed;
+        box-shadow: none !important;
       }
 
       /* Chat Window Animation */

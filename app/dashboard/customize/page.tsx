@@ -16,14 +16,18 @@ export default function CustomizePage() {
     color: '#3b82f6',
     greeting: 'Hello! How can I help you today?',
     position: 'right',
-    aiMode: true,
+    aiMode: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [websiteDescription, setWebsiteDescription] = useState('');
+  const [savingWebsite, setSavingWebsite] = useState(false);
 
   useEffect(() => {
     fetchSettings();
+    fetchWebsiteData();
   }, []);
 
   const fetchSettings = async () => {
@@ -39,6 +43,61 @@ export default function CustomizePage() {
       console.error('Failed to fetch settings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWebsiteData = async () => {
+    try {
+      const response = await fetch('/api/website');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.description) {
+          setWebsiteDescription(data.description);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch website data:', error);
+    }
+  };
+
+  const handleAIModeToggle = () => {
+    const newAiMode = !settings.aiMode;
+    
+    if (newAiMode && !websiteDescription) {
+      // Show modal if turning AI ON and no website description exists
+      setShowModal(true);
+    } else {
+      // Just toggle if turning OFF or description already exists
+      setSettings({ ...settings, aiMode: newAiMode });
+    }
+  };
+
+  const handleSaveWebsiteDescription = async () => {
+    if (!websiteDescription.trim()) {
+      alert('Please enter a website description');
+      return;
+    }
+
+    setSavingWebsite(true);
+    try {
+      const response = await fetch('/api/website', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: websiteDescription }),
+      });
+
+      if (response.ok) {
+        // Enable AI mode after saving description
+        setSettings({ ...settings, aiMode: true });
+        setShowModal(false);
+        // Also save the settings
+        await handleSave();
+      }
+    } catch (error) {
+      console.error('Failed to save website description:', error);
+      alert('Failed to save website description');
+    } finally {
+      setSavingWebsite(false);
     }
   };
 
@@ -71,209 +130,260 @@ export default function CustomizePage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Customize Chatbot</h1>
-        <p className="mt-2 text-gray-400">
-          Personalize your chatbot's appearance and behavior
-        </p>
-      </div>
+    <>
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Customize Chatbot</h1>
+          <p className="mt-2 text-gray-400">
+            Personalize your chatbot's appearance and behavior
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        {/* Settings Form */}
-        <div className="space-y-6">
-          <div className="rounded-lg bg-gradient-to-br from-dark-50 to-dark-100 border border-primary-900/20 p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-semibold text-white">Settings</h2>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                  Chatbot Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={settings.name}
-                  onChange={(e) => setSettings({ ...settings, name: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-primary-800 bg-dark-200 px-4 py-2 text-white placeholder-gray-500 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="color" className="block text-sm font-medium text-gray-300">
-                  Primary Color
-                </label>
-                <div className="mt-1 flex gap-2">
-                  <input
-                    type="color"
-                    id="color"
-                    value={settings.color}
-                    onChange={(e) => setSettings({ ...settings, color: e.target.value })}
-                    className="h-10 w-20 cursor-pointer rounded-lg border border-primary-800"
-                  />
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          {/* Settings Form */}
+          <div className="space-y-6">
+            <div className="rounded-lg bg-gradient-to-br from-dark-50 to-dark-100 border border-primary-900/20 p-6 shadow-xl">
+              <h2 className="mb-4 text-xl font-semibold text-white">Settings</h2>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+                    Chatbot Name
+                  </label>
                   <input
                     type="text"
-                    value={settings.color}
-                    onChange={(e) => setSettings({ ...settings, color: e.target.value })}
-                    className="flex-1 rounded-lg border border-primary-800 bg-dark-200 px-4 py-2 font-mono text-sm text-white placeholder-gray-500 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
+                    id="name"
+                    value={settings.name}
+                    onChange={(e) => setSettings({ ...settings, name: e.target.value })}
+                    className="mt-1 w-full rounded-lg border border-primary-800 bg-dark-200 px-4 py-2 text-white placeholder-gray-500 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="greeting" className="block text-sm font-medium text-gray-300">
-                  Greeting Message
-                </label>
-                <textarea
-                  id="greeting"
-                  rows={3}
-                  value={settings.greeting}
-                  onChange={(e) => setSettings({ ...settings, greeting: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-primary-800 bg-dark-200 px-4 py-2 text-white placeholder-gray-500 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Chat Mode
-                </label>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-dark-300 border border-primary-800">
-                    <div>
-                      <p className="text-sm font-medium text-white">AI Mode</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {settings.aiMode 
-                          ? 'Users can type freely and get AI responses' 
-                          : 'Users select from predefined quick-reply buttons'}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSettings({ ...settings, aiMode: !settings.aiMode })}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        settings.aiMode ? 'bg-primary-600' : 'bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          settings.aiMode ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
+                <div>
+                  <label htmlFor="color" className="block text-sm font-medium text-gray-300">
+                    Primary Color
+                  </label>
+                  <div className="mt-1 flex gap-2">
+                    <input
+                      type="color"
+                      id="color"
+                      value={settings.color}
+                      onChange={(e) => setSettings({ ...settings, color: e.target.value })}
+                      className="h-10 w-20 cursor-pointer rounded-lg border border-primary-800"
+                    />
+                    <input
+                      type="text"
+                      value={settings.color}
+                      onChange={(e) => setSettings({ ...settings, color: e.target.value })}
+                      className="flex-1 rounded-lg border border-primary-800 bg-dark-200 px-4 py-2 font-mono text-sm text-white placeholder-gray-500 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300">
-                  Widget Position
-                </label>
-                <div className="mt-2 flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="position"
-                      value="left"
-                      checked={settings.position === 'left'}
-                      onChange={(e) => setSettings({ ...settings, position: e.target.value })}
-                      className="h-4 w-4 text-blue-600"
-                    />
-                    <span className="text-sm text-gray-300">Left</span>
+                <div>
+                  <label htmlFor="greeting" className="block text-sm font-medium text-gray-300">
+                    Greeting Message
                   </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="position"
-                      value="right"
-                      checked={settings.position === 'right'}
-                      onChange={(e) => setSettings({ ...settings, position: e.target.value })}
-                      className="h-4 w-4 text-blue-600"
-                    />
-                    <span className="text-sm text-gray-300">Right</span>
-                  </label>
+                  <textarea
+                    id="greeting"
+                    rows={3}
+                    value={settings.greeting}
+                    onChange={(e) => setSettings({ ...settings, greeting: e.target.value })}
+                    className="mt-1 w-full rounded-lg border border-primary-800 bg-dark-200 px-4 py-2 text-white placeholder-gray-500 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
+                  />
                 </div>
-              </div>
 
-              <div className="flex items-center gap-4 pt-4">
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white transition hover:bg-primary-700 disabled:opacity-50"
-                >
-                  {saving ? 'Saving...' : 'Save Settings'}
-                </button>
-                {saved && (
-                  <span className="text-sm font-medium text-green-600">
-                    ✓ Saved successfully!
-                  </span>
-                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Chat Mode
+                  </label>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-dark-300 border border-primary-800">
+                      <div>
+                        <p className="text-sm font-medium text-white">AI Mode</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {settings.aiMode 
+                            ? 'Users can type freely and get AI responses' 
+                            : 'Users select from predefined quick-reply buttons'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAIModeToggle}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          settings.aiMode ? 'bg-primary-600' : 'bg-gray-600'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            settings.aiMode ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300">
+                    Widget Position
+                  </label>
+                  <div className="mt-2 flex gap-4">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="position"
+                        value="left"
+                        checked={settings.position === 'left'}
+                        onChange={(e) => setSettings({ ...settings, position: e.target.value })}
+                        className="h-4 w-4 text-blue-600"
+                      />
+                      <span className="text-sm text-gray-300">Left</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="position"
+                        value="right"
+                        checked={settings.position === 'right'}
+                        onChange={(e) => setSettings({ ...settings, position: e.target.value })}
+                        className="h-4 w-4 text-blue-600"
+                      />
+                      <span className="text-sm text-gray-300">Right</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 pt-4">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white transition hover:bg-primary-700 disabled:opacity-50"
+                  >
+                    {saving ? 'Saving...' : 'Save Settings'}
+                  </button>
+                  {saved && (
+                    <span className="text-sm font-medium text-green-600">
+                      ✓ Saved successfully!
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Preview */}
-        <div className="rounded-lg bg-gradient-to-br from-dark-50 to-dark-100 border border-primary-900/20 p-6 shadow-xl">
-          <h2 className="mb-4 text-xl font-semibold text-white">Preview</h2>
-          <div className="relative h-[600px] overflow-hidden rounded-lg border-2 border-primary-900/20 bg-dark-200">
-            {/* Chat Button Preview */}
-            <div
-              className={`absolute bottom-4 ${
-                settings.position === 'left' ? 'left-4' : 'right-4'
-              }`}
-            >
-              <button
-                style={{ backgroundColor: settings.color }}
-                className="flex h-14 w-14 items-center justify-center rounded-full text-2xl text-white shadow-lg transition hover:scale-110"
-              >
-                💬
-              </button>
-            </div>
-
-            {/* Chat Window Preview */}
-            <div
-              className={`absolute bottom-20 ${
-                settings.position === 'left' ? 'left-4' : 'right-4'
-              } w-80 rounded-lg bg-white shadow-xl`}
-            >
-              {/* Header */}
+          {/* Preview */}
+          <div className="rounded-lg bg-gradient-to-br from-dark-50 to-dark-100 border border-primary-900/20 p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-semibold text-white">Preview</h2>
+            <div className="relative h-[600px] overflow-hidden rounded-lg border-2 border-primary-900/20 bg-dark-200">
+              {/* Chat Button Preview */}
               <div
-                style={{ backgroundColor: settings.color }}
-                className="rounded-t-lg p-4 text-white"
+                className={`absolute bottom-4 ${
+                  settings.position === 'left' ? 'left-4' : 'right-4'
+                }`}
               >
-                <h3 className="font-semibold">{settings.name}</h3>
-                <p className="text-xs opacity-90">Online</p>
+                <button
+                  style={{ backgroundColor: settings.color }}
+                  className="flex h-14 w-14 items-center justify-center rounded-full text-2xl text-white shadow-lg transition hover:scale-110"
+                >
+                  💬
+                </button>
               </div>
 
-              {/* Messages */}
-              <div className="h-64 space-y-3 overflow-y-auto p-4">
-                <div className="flex justify-start">
-                  <div className="max-w-xs rounded-lg bg-gray-100 px-4 py-2">
-                    <p className="text-sm text-gray-800">{settings.greeting}</p>
-                  </div>
+              {/* Chat Window Preview */}
+              <div
+                className={`absolute bottom-20 ${
+                  settings.position === 'left' ? 'left-4' : 'right-4'
+                } w-80 rounded-lg bg-white shadow-xl`}
+              >
+                {/* Header */}
+                <div
+                  style={{ backgroundColor: settings.color }}
+                  className="rounded-t-lg p-4 text-white"
+                >
+                  <h3 className="font-semibold">{settings.name}</h3>
+                  <p className="text-xs opacity-90">Online</p>
                 </div>
-                <div className="flex justify-end">
-                  <div
-                    style={{ backgroundColor: settings.color }}
-                    className="max-w-xs rounded-lg px-4 py-2"
-                  >
-                    <p className="text-sm text-white">Hello!</p>
-                  </div>
-                </div>
-              </div>
 
-              {/* Input */}
-              <div className="border-t p-3">
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  className="w-full rounded-lg border px-3 py-2 text-sm"
-                  disabled
-                />
+                {/* Messages */}
+                <div className="h-64 space-y-3 overflow-y-auto p-4">
+                  <div className="flex justify-start">
+                    <div className="max-w-xs rounded-lg bg-gray-100 px-4 py-2">
+                      <p className="text-sm text-gray-800">{settings.greeting}</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <div
+                      style={{ backgroundColor: settings.color }}
+                      className="max-w-xs rounded-lg px-4 py-2"
+                    >
+                      <p className="text-sm text-white">Hello!</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Input */}
+                <div className="border-t p-3">
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
+                    className="w-full rounded-lg border px-3 py-2 text-sm"
+                    disabled
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Website Description Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl bg-gradient-to-br from-dark-50 to-dark-100 border border-primary-900/20 p-8 shadow-2xl">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-white">Enable AI Mode</h2>
+              <p className="mt-2 text-gray-400">
+                To provide intelligent responses, please describe your website and business
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="websiteDesc" className="block text-sm font-medium text-gray-300 mb-2">
+                  Website Description
+                </label>
+                <textarea
+                  id="websiteDesc"
+                  rows={8}
+                  value={websiteDescription}
+                  onChange={(e) => setWebsiteDescription(e.target.value)}
+                  placeholder="Example: We are a fitness center offering personal training, group classes, and nutrition coaching. We have state-of-the-art equipment and experienced trainers..."
+                  className="w-full rounded-lg border border-primary-800 bg-dark-200 px-4 py-3 text-white placeholder-gray-500 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-600"
+                />
+                <p className="mt-2 text-xs text-gray-500">
+                  This helps the AI understand your business and provide accurate responses to customer questions.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleSaveWebsiteDescription}
+                  disabled={savingWebsite || !websiteDescription.trim()}
+                  className="flex-1 rounded-lg bg-primary-600 px-6 py-3 font-semibold text-white transition hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {savingWebsite ? 'Saving...' : 'Enable AI Mode'}
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="rounded-lg border border-primary-800 px-6 py-3 font-semibold text-gray-300 transition hover:bg-dark-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
