@@ -54,6 +54,8 @@ export async function generateAIResponse(
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://dialogly.vercel.app',
+        'X-Title': 'Dialogly Chatbot',
       },
       body: JSON.stringify({
         model: 'openai/gpt-oss-120b:free',
