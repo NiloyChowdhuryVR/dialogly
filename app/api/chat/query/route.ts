@@ -28,28 +28,32 @@ export async function POST(request: Request) {
         const body = await request.json();
         const validatedData = chatQuerySchema.parse(body);
 
-        // Fetch user's context data
-        const [websiteData, faqs] = await Promise.all([
+        // Fetch user's context data and settings
+        const [websiteData, faqs, settings] = await Promise.all([
             prisma.websiteData.findUnique({
                 where: { userId },
             }),
             prisma.fAQ.findMany({
                 where: { userId },
             }),
+            prisma.chatbotSettings.findUnique({
+                where: { userId },
+                select: { aiMode: true },
+            }),
         ]);
 
         let responseMessage: string;
         let usedFAQ = false;
 
-        // Try to find a matching FAQ
+        // Try to find a matching FAQ first
         const matchingFAQ = findBestFAQMatch(validatedData.message, faqs);
 
         if (matchingFAQ) {
             // Use FAQ answer
             responseMessage = matchingFAQ.answer;
             usedFAQ = true;
-        } else {
-            // Generate AI response
+        } else if (settings?.aiMode) {
+            // Only generate AI response if AI mode is enabled
             responseMessage = await generateAIResponse(validatedData.message, {
                 websiteDescription: websiteData?.description || '',
                 faqs: faqs.map((faq) => ({
@@ -57,6 +61,9 @@ export async function POST(request: Request) {
                     answer: faq.answer,
                 })),
             });
+        } else {
+            // AI mode is OFF and no FAQ match - return helpful message
+            responseMessage = "I'm sorry, I don't have a specific answer for that question. Please try one of the suggested options or contact our support team for assistance.";
         }
 
         // Save messages to database

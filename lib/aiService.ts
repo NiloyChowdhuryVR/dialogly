@@ -1,75 +1,105 @@
 /**
- * AI Service for generating responses
- * This is a mock implementation. Replace with actual AI service integration.
+ * AI Service for generating responses using OpenRouter API
  */
 
 interface AIContext {
-    websiteDescription: string;
-    faqs: Array<{ question: string; answer: string }>;
-    conversationHistory?: Array<{ role: string; content: string }>;
+  websiteDescription: string;
+  faqs: Array<{ question: string; answer: string }>;
+  conversationHistory?: Array<{ role: string; content: string }>;
 }
 
-export async function generateAIResponse(
-    userMessage: string,
-    context: AIContext
-): Promise<string> {
-    // Mock AI response generation
-    // In production, replace this with actual AI API calls (OpenAI, Anthropic, etc.)
-
-    const { websiteDescription, faqs } = context;
-
-    // Simple mock response based on context
-    const responses = [
-        `Based on our website information: ${websiteDescription.substring(0, 100)}... I'd be happy to help you with "${userMessage}". Could you provide more details?`,
-        `Thank you for your question about "${userMessage}". According to our information, we specialize in providing excellent service. How can I assist you further?`,
-        `I understand you're asking about "${userMessage}". Let me help you with that based on our services and offerings.`,
-    ];
-
-    // Return a random mock response
-    const response = responses[Math.floor(Math.random() * responses.length)];
-
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    return response;
+interface OpenRouterMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+  reasoning_details?: any;
 }
 
-/**
- * Example integration with OpenAI (commented out)
- * Uncomment and configure when ready to use
- */
-/*
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.AI_API_KEY,
-});
+interface OpenRouterResponse {
+  choices: Array<{
+    message: {
+      content: string;
+      reasoning_details?: any;
+    };
+  }>;
+}
 
 export async function generateAIResponse(
   userMessage: string,
   context: AIContext
 ): Promise<string> {
-  const systemPrompt = `You are a helpful customer support assistant for a company.
-  
-Website Information:
-${context.websiteDescription}
+  const apiKey = process.env.OPENROUTER_API_KEY;
 
-Available FAQs:
-${context.faqs.map((faq, i) => `${i + 1}. Q: ${faq.question}\n   A: ${faq.answer}`).join('\n\n')}
+  if (!apiKey) {
+    console.error('OPENROUTER_API_KEY is not configured');
+    return 'I apologize, but the AI service is not properly configured. Please contact support.';
+  }
 
-Provide helpful, accurate, and friendly responses based on this information.`;
+  try {
+    // Build system prompt with context
+    const systemPrompt = buildSystemPrompt(context);
 
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: [
+    // Build messages array
+    const messages: OpenRouterMessage[] = [
       { role: 'system', content: systemPrompt },
-      ...(context.conversationHistory || []),
+      ...(context.conversationHistory || []).map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      })),
       { role: 'user', content: userMessage },
-    ],
-    temperature: 0.7,
-    max_tokens: 500,
-  });
+    ];
 
-  return completion.choices[0]?.message?.content || 'I apologize, but I could not generate a response.';
+    // Call OpenRouter API with reasoning enabled
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-oss-120b:free',
+        messages: messages,
+        reasoning: { enabled: true },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenRouter API error:', response.status, errorText);
+      return 'I apologize, but I encountered an error processing your request. Please try again.';
+    }
+
+    const data: OpenRouterResponse = await response.json();
+    const assistantMessage = data.choices[0]?.message?.content;
+
+    if (!assistantMessage) {
+      console.error('No response from OpenRouter API');
+      return 'I apologize, but I could not generate a response. Please try again.';
+    }
+
+    return assistantMessage;
+  } catch (error) {
+    console.error('Error calling OpenRouter API:', error);
+    return 'I apologize, but I encountered an error. Please try again later.';
+  }
 }
-*/
+
+/**
+ * Build system prompt with website context and FAQs
+ */
+function buildSystemPrompt(context: AIContext): string {
+  const { websiteDescription, faqs } = context;
+
+  let prompt = `You are a helpful customer support assistant for a company.
+
+Website Information:
+${websiteDescription || 'No website description provided.'}`;
+
+  if (faqs && faqs.length > 0) {
+    prompt += `\n\nAvailable FAQs:
+${faqs.map((faq, i) => `${i + 1}. Q: ${faq.question}\n   A: ${faq.answer}`).join('\n\n')}`;
+  }
+
+  prompt += `\n\nProvide helpful, accurate, and friendly responses based on this information. If you don't have enough information to answer a question, politely let the user know and offer to help with something else.`;
+
+  return prompt;
+}
